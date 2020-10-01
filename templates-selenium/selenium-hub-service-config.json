@@ -1,0 +1,23 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "seleniumhubname",
+    "labels": {
+      "app": "seleniumhubname"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "4444-tcp",
+        "protocol": "TCP",
+        "port": 4444,
+        "targetPort": 4444
+      }
+    ],
+    "selector": {
+      "deploymentconfig": "seleniumhubname"
+    }
+  }
+}

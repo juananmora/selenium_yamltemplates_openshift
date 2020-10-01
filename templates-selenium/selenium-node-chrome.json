@@ -1,0 +1,77 @@
+  {
+    "apiVersion": "apps.openshift.io/v1",
+    "kind": "DeploymentConfig",
+    "metadata": {
+      "name": "seleniumnodechromename"
+    },
+    "spec": {
+      "replicas": "seleniumnodechromereplicas",
+      "selector": {
+        "browser": "chrome"
+      },
+      "template": {
+        "metadata": {
+          "name": "seleniumnodechromename",
+          "labels": {
+            "browser": "chrome"
+          }
+        },
+        "spec": {
+          "volumes": [
+            {
+              "name": "dshm",
+              "emptyDir": {
+                "medium": "Memory"
+              }
+            }
+          ],
+          "containers": [
+            {
+              "env": [
+                {
+                  "name": "HUB_PORT_4444_TCP_ADDR",
+                  "value": "seleniumhubaddress"
+                },
+                {
+                  "name": "HUB_PORT_4444_TCP_PORT",
+                  "value": "4444"
+                }
+              ],
+              "image": "registry.global.ccc.srvb.bo.paas.cloudcenter.corp/san-devops/selenium-node-chrome:latest",
+              "volumes": [
+                "/dev/shm:/dev/shm"
+              ],
+              "name": "master",
+              "ports": [
+                {
+                  "containerPort": 4444,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 5555,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1.5",
+                  "memory": "4000Mi"
+                }
+              },
+              "securityContext": {
+                "runAsUser": 1000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File"
+            }
+          ]
+        },
+        "dnsPolicy": "ClusterFirst",
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "terminationGracePeriodSeconds": 30
+      }
+    },
+    "test": false
+  }

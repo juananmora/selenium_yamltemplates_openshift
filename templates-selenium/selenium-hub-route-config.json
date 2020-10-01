@@ -1,0 +1,20 @@
+  {
+    "apiVersion": "route.openshift.io/v1",
+    "kind": "Route",
+    "metadata": {
+      "annotations": {
+        "haproxy.router.openshift.io/timeout": "600s"
+      },
+      "name": "seleniumhubname"
+    },
+    "spec": {
+      "host": "",
+      "port": {
+        "targetPort": 4444
+      },
+      "to": {
+        "kind": "Service",
+        "name": "seleniumhubname"
+      }
+    }
+  }

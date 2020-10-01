@@ -1,0 +1,192 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+		"name": "selenium-hub-jon",
+		"annotations": {
+		  "description": "A Selenium Grid",
+		  "iconClass": "icon-selenium",
+		  "tags": "selenium-hub"
+		}
+	  },
+    "objects": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "labels": {
+                    "selenium-hub-jon": "master"
+                },
+                "name": "selenium-hub-jon",
+                "namespace": ""
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "web",
+                        "port": 4444,
+                        "protocol": "TCP",
+                        "targetPort": 4444
+                    },
+                    {
+                        "name": "node",
+                        "port": 5555,
+                        "protocol": "TCP",
+                        "targetPort": 5555
+                    }
+                ],
+                "selector": {
+                    "type": "selenium-hub-jon"
+                },
+                "type": "ClusterIP"
+            }
+        },
+        {
+            "apiVersion": "apps.openshift.io/v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "labels": {
+                    "selenium-hub-jon": "master"
+                },
+                "name": "selenium-hub-jon",
+                "namespace": ""
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "type": "selenium-hub-jon"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "type": "selenium-hub-jon"
+                        },
+                        "name": "selenium-hub-jon"
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "JAVA_OPTS",
+                                        "value": "-Xmx512m"
+                                    },
+                                    {
+                                        "name": "POOL_MAX",
+                                        "value": "60000"
+                                    },
+                                    {
+                                        "name": "GRID_NEW_SESSION_WAIT_TIMEOUT",
+                                        "value": "${GRID_NEW_SESSION_WAIT_TIMEOUT}"
+                                    },
+                                    {
+                                        "name": "GRID_JETTY_MAX_THREADS",
+                                        "value": "100"
+                                    },
+                                    {
+                                        "name": "GRID_NODE_POLLING",
+                                        "value": "150"
+                                    },
+                                    {
+                                        "name": "GRID_CLEAN_UP_CYCLE",
+                                        "value": "600"
+                                    },
+                                    {
+                                        "name": "GRID_TIMEOUT",
+                                        "value": "600"
+                                    },
+                                    {
+                                        "name": "GRID_BROWSER_TIMEOUT",
+                                        "value": "600"
+                                    },
+                                    {
+                                        "name": "GRID_MAX_SESSION",
+                                        "value": "10"
+                                    },
+                                    {
+                                        "name": "GRID_UNREGISTER_IF_STILL_DOWN_AFTER",
+                                        "value": "500"
+                                    }
+                                ],
+                                "image": "registry.global.ccc.srvb.bo.paas.cloudcenter.corp/san-devops/selenium-hub",
+                                "livenessProbe": {
+                                    "httpGet": {
+                                        "path": "/wd/hub/status",
+                                        "port": 4444
+                                    },
+                                    "initialDelaySeconds": 30,
+                                    "timeoutSeconds": 5
+                                },
+                                "name": "master",
+                                "ports": [
+                                    {
+                                        "containerPort": 4444,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "httpGet": {
+                                        "path": "/wd/hub/status",
+                                        "port": 4444
+                                    },
+                                    "initialDelaySeconds": 30,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "500m",
+                                        "memory": "1000Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "runAsUser": 1000
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "route.openshift.io/v1",
+            "kind": "Route",
+            "metadata": {
+                "annotations": {
+                    "haproxy.router.openshift.io/timeout": "600s"
+                },
+                "labels": {
+                    "selenium-hub-jon": "master"
+                },
+                "name": "${seleniumhub}",
+                "namespace": ""
+            },
+            "spec": {
+                "host": "",
+                "port": {
+                    "targetPort": 4444
+                },
+                "to": {
+                    "kind": "Service",
+                    "name": "selenium-hub-jon"
+                }
+            }
+        }
+	 ],
+	 "parameters": [
+      {
+         "description": "Selenium Hub name",
+         "name": "seleniumhub",
+         "value": "selenium-hub-jonas"
+      },
+      {
+         "description": "The timeout to wait for new sessions",
+         "name": "GRID_NEW_SESSION_WAIT_TIMEOUT",
+         "value": "600001"
+      }
+	],
+	"labels": {
+		"template": "selenium-hub-jon"
+	}
+}
